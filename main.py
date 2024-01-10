@@ -3,7 +3,8 @@ import os
 
 
 class NeuralNetwork:
-    def __init__(self, input_size, hidden_size, output_size):
+    def __init__(self, input_size, hidden_size, output_size, learning_rate):
+        self.learning_rate = learning_rate
         # Inicjalizacja wag
         self.weights1 = np.random.randn(input_size, hidden_size)
         self.weights2 = np.random.randn(hidden_size, output_size)
@@ -31,9 +32,8 @@ class NeuralNetwork:
         gradient_weights1 = np.dot(X.T, np.dot(d_softmax, self.weights2.T) * d_relu)
 
         # 5. Zaktualizuj wagi
-        self.weights1 -= learning_rate * gradient_weights1
-        self.weights2 -= learning_rate * gradient_weights2
-
+        self.weights1 -= self.learning_rate * gradient_weights1
+        self.weights2 -= self.learning_rate * gradient_weights2
 
     @staticmethod
     def relu(x):
@@ -51,6 +51,20 @@ class NeuralNetwork:
 
     def update_weights(weights, gradients, learning_rate):
         return weights - learning_rate * gradients
+
+    def train(self, X_train, y_train, epochs):
+        for epoch in range(epochs):
+            for X, y in zip(X_train, y_train):
+                # Propagacja w przód
+                output = self.forward(X)
+
+                # Obliczanie straty
+                loss = self.cross_entropy(output, y)
+
+                # Wsteczna propagacja i aktualizacja wag
+                self.backward(X, y, output)
+
+            print(f'Epoka {epoch + 1}/{epochs}, Strata: {loss}')
 
 
 def load_mnist(path, kind='train'):
