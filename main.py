@@ -10,10 +10,10 @@ class NeuralNetwork:
 
     def forward(self, X):
         # Przeprowadź dane przez sieć
-        self.z2 = np.dot(X, self.weights1)
-        self.a2 = self.relu(self.z2)
-        self.z3 = np.dot(self.a2, self.weights2)
-        output = self.softmax(self.z3)
+        self.z2 = np.dot(X, self.weights1)  # Wejście do pierwszej wasrtwy ukrytej
+        self.a2 = self.relu(self.z2)  # Aktywacja pierwzszej warstwu ukyrtej
+        self.z3 = np.dot(self.a2, self.weights2)  # Wejście do wyjsciowej wasrtwy ukrytej
+        output = self.softmax(self.z3)  # Aktywacja wyjsciowej warstwu ukyrtej
         return output
 
     @staticmethod
@@ -22,8 +22,13 @@ class NeuralNetwork:
 
     @staticmethod
     def softmax(x):
-        exp_x = np.exp(x - np.max(x))
-        return exp_x / exp_x.sum(axis=1, keepdims=True)
+        exp_x = np.exp(x - np.max(x))  # funkcja eksponencjalna(x - największa wartość)
+        return exp_x / exp_x.sum(axis=1, keepdims=True)  # exp_x / suma eksponencjalnych wartości wzdłóż osi 1
+
+    def cross_entropy(self, y_pred, y_true):
+        m = y_true.shape[0]
+        loss = -np.sum(y_true * np.log(y_pred + 1e-15)) / m
+        return loss
 
 
 def load_mnist(path, kind='train'):
