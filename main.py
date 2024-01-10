@@ -16,6 +16,25 @@ class NeuralNetwork:
         output = self.softmax(self.z3)  # Aktywacja wyjsciowej warstwu ukyrtej
         return output
 
+    def backward(self, X, y_true, output):
+        # 1. Oblicz błąd na wyjściu (dla softmax użyj pochodnej entropii krzyżowej)
+        error = output - y_true
+
+        # 2. Pochodna funkcji softmax
+        d_softmax = error / output.shape[0]  # Normalizacja przez liczbę przykładów
+
+        # 3. Pochodna funkcji aktywacji ReLU
+        d_relu = np.where(self.a2 <= 0, 0, 1)
+
+        # 4. Oblicz gradienty dla każdej warstwy
+        gradient_weights2 = np.dot(self.a2.T, d_softmax)
+        gradient_weights1 = np.dot(X.T, np.dot(d_softmax, self.weights2.T) * d_relu)
+
+        # 5. Zaktualizuj wagi
+        self.weights1 -= learning_rate * gradient_weights1
+        self.weights2 -= learning_rate * gradient_weights2
+
+
     @staticmethod
     def relu(x):
         return np.maximum(0, x)
@@ -29,6 +48,9 @@ class NeuralNetwork:
         m = y_true.shape[0]
         loss = -np.sum(y_true * np.log(y_pred + 1e-15)) / m
         return loss
+
+    def update_weights(weights, gradients, learning_rate):
+        return weights - learning_rate * gradients
 
 
 def load_mnist(path, kind='train'):
