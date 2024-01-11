@@ -86,7 +86,7 @@ class NeuralNetwork:
 
                 # Wsteczna propagacja i aktualizacja wag
                 self.backward(X, y, output)
-            if epoch % 100 == 0:
+            if epoch % 10 == 0:
                 print(f'Epoka {epoch + 1}/{epochs}, Strata: {loss}')
 
 
@@ -121,8 +121,8 @@ train_images, train_labels = load_mnist('.', kind='train')
 test_images, test_labels = load_mnist('.', kind='t10k')
 
 # Przykład losowego próbkowania 10 000 obrazów treningowych i 2 000 testowych
-train_indices = np.random.choice(len(train_images), 1000, replace=False)
-test_indices = np.random.choice(len(test_images), 200, replace=False)
+train_indices = np.random.choice(len(train_images), 10000, replace=False)
+test_indices = np.random.choice(len(test_images), 50, replace=False)
 
 train_images_sampled = train_images[train_indices] / 255.0
 train_labels_sampled = train_labels[train_indices]
@@ -152,4 +152,4 @@ neural_network.train(train_images_resized, train_labels_one_hot, epochs=1000)
 for X, y in zip(test_images_resized, test_labels_one_hot):
     prediction = neural_network.forward(X)
     predicted_class = np.argmax(prediction)
-    print(predicted_class)
+    print(f"Prediction:\n {prediction} \n(expected\n {y})\n predicted_class {predicted_class}")
