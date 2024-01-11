@@ -86,7 +86,7 @@ class NeuralNetwork:
 
                 # Wsteczna propagacja i aktualizacja wag
                 self.backward(X, y, output)
-            if epoch % 1000 == 0:
+            if epoch % 100 == 0:
                 print(f'Epoka {epoch + 1}/{epochs}, Strata: {loss}')
 
 
@@ -146,9 +146,10 @@ test_labels_one_hot = one_hot_encode(test_labels_sampled, 10)
 neural_network = NeuralNetwork(100, 32, 10, 0.01)
 
 # Trenuj sieć przez 10 epok
-neural_network.train(train_images_resized, train_labels_one_hot, epochs=10000)
+neural_network.train(train_images_resized, train_labels_one_hot, epochs=1000)
 
 # Iteracja przez obrazy testowe i etykiety, zapisywanie wyników predykcji
 for X, y in zip(test_images_resized, test_labels_one_hot):
     prediction = neural_network.forward(X)
-    print(prediction)
+    predicted_class = np.argmax(prediction)
+    print(predicted_class)
