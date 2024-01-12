@@ -136,7 +136,7 @@ test_images_resized = resize_images(test_images_sampled, new_size)
 # print("Rozmiar danych treningowych (obrazy):", train_images.shape)
 # print("Rozmiar danych treningowych (etykiety):", train_labels.shape)
 # print("Rozmiar danych testowych (obrazy):", test_images.shape)
-# print("Rozmiar danych testowych (etykiety):", test_labels.shape)
+# print("Rozmiar danych testowych (etykiety):" test_labels.shape)
 
 # One-hot encoding etykiet
 train_labels_one_hot = one_hot_encode(train_labels_sampled, 10)
