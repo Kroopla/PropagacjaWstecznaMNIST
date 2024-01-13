@@ -129,7 +129,7 @@ train_labels_sampled = train_labels[train_indices]
 test_images_sampled = test_images[test_indices] / 255.0
 test_labels_sampled = test_labels[test_indices]
 
-new_size = 10  # Nowy rozmiar obrazów, np. 14x14
+new_size = 10  # Nowy rozmiar obrazów, np. 10x10
 train_images_resized = resize_images(train_images_sampled, new_size)
 test_images_resized = resize_images(test_images_sampled, new_size)
 
@@ -149,7 +149,14 @@ neural_network = NeuralNetwork(100, 32, 10, 0.01)
 neural_network.train(train_images_resized, train_labels_one_hot, epochs=1000)
 
 # Iteracja przez obrazy testowe i etykiety, zapisywanie wyników predykcji
+
+accuracy = 0
+
 for X, y in zip(test_images_resized, test_labels_one_hot):
     prediction = neural_network.forward(X)
     predicted_class = np.argmax(prediction)
+    if np.argmax(y) == predicted_class:
+        accuracy += 1
     print(f"Prediction:\n {prediction} \n(expected:\n {y})\n predicted_class: {predicted_class}")
+
+print(f"Accuracy: {accuracy}, a to jest {accuracy/50*100}%")
