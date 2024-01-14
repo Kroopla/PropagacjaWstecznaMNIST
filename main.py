@@ -14,6 +14,7 @@ class NeuralNetwork:
 
     def forward(self, X):
         # print(f'Forward: {X}')
+        # Przeprowadź dane przez sieć
         self.z2 = np.dot(X, self.weights1)  # Wejście do pierwszej wasrtwy ukrytej
         # print(f"z2 shape: {self.z2}")
         self.a2 = self.relu(self.z2)  # Aktywacja pierwzszej warstwu ukyrtej
@@ -27,8 +28,7 @@ class NeuralNetwork:
 
     def backward(self, X, y_true, output):
         # WSTECZNA PROPAGACJA!!!
-
-        # 1. Oblicz błędu na wyjściu
+        # 1. Oblicz błąd na wyjściu (dla softmax użyj pochodnej entropii krzyżowej)
         error = output - y_true
 
         # 2. Pochodna funkcji softmax
@@ -37,16 +37,16 @@ class NeuralNetwork:
         # 3. Pochodna funkcji aktywacji ReLU
         d_relu = np.where(self.a2 <= 0, 0, 1)
 
-        # 4. Obliczanie gradientu dla każdej warstwy
+        # 4. Oblicz gradienty dla każdej warstwy
         # print("Kształt self.a2:", self.a2.shape)
         # print("Kształt d_softmax:", d_softmax.shape)
         gradient_weights2 = np.dot(self.a2.reshape(1, -1).T, d_softmax.reshape(1, -1))
-        X_matrix = X.reshape(-1, 1)
+        X_matrix = X.reshape(1, -1)
         gradient_weights1 = np.dot(X_matrix.T, np.dot(d_softmax.reshape(1, -1), self.weights2.T) * d_relu)
         # print(f"gradient_weights1: {gradient_weights1}")
         # print(f"gradient_weights2: {gradient_weights2}")
 
-        # 5. Aktualizacja wag
+        # 5. Zaktualizuj wagi
         self.weights1 -= self.learning_rate * gradient_weights1
         self.weights2 -= self.learning_rate * gradient_weights2
 
@@ -56,12 +56,14 @@ class NeuralNetwork:
 
     @staticmethod
     def softmax(x):
+        # exp_x = np.exp(x - np.max(x))  # funkcja eksponencjalna(x - największa wartość)
+        # return exp_x / exp_x.sum(axis=1, keepdims=True)  # exp_x / suma eksponencjalnych wartości wzdłóż osi 1
         if x.ndim == 1:  # Jeśli x jest wektorem (1D)
-            exp_x = np.exp(x - np.max(x))        # funkcja eksponencjalna(x - największa wartość)
-            return exp_x / np.sum(exp_x)         # exp_x / suma eksponencjalnych wartości wzdłóż osi 1
+            exp_x = np.exp(x - np.max(x))
+            return exp_x / np.sum(exp_x)
         else:  # Jeśli x jest macierzą (2D)
-            exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))  # funkcja eksponencjalna(x - największa wartość)
-            return exp_x / np.sum(exp_x, axis=1, keepdims=True)   # exp_x / suma eksponencjalnych wartości wzdłóż osi 1
+            exp_x = np.exp(x - np.max(x, axis=1, keepdims=True))
+            return exp_x / np.sum(exp_x, axis=1, keepdims=True)
 
     def cross_entropy(self, y_pred, y_true):
         # print(f"y_pred: {y_pred}")
@@ -69,6 +71,9 @@ class NeuralNetwork:
         m = y_true.shape[0]
         loss = -np.sum(y_true * np.log(y_pred + 1e-15)) / m
         return loss
+
+    def update_weights(weights, gradients, learning_rate):
+        return weights - learning_rate * gradients
 
     def train(self, X_train, y_train, epochs):
         for epoch in range(epochs):
@@ -86,6 +91,7 @@ class NeuralNetwork:
 
 
 def load_mnist(path, kind='train'):
+    """Wczytaj nieskompresowane pliki MNIST."""
     labels_path = os.path.join(path, f'{kind}-labels.idx1-ubyte')
     images_path = os.path.join(path, f'{kind}-images.idx3-ubyte')
 
@@ -110,11 +116,11 @@ def resize_images(images, new_size):
     return resized_images.reshape(images.shape[0], new_size * new_size)
 
 
-# Załadowanie danych i etykiet z plików
+# Przykład użycia
 train_images, train_labels = load_mnist('.', kind='train')
 test_images, test_labels = load_mnist('.', kind='t10k')
 
-# Losowe próbkowanie danych do treningu i testowania
+# Przykład losowego próbkowania 10 000 obrazów treningowych i 2 000 testowych
 train_indices = np.random.choice(len(train_images), 1000, replace=False)
 test_indices = np.random.choice(len(test_images), 50, replace=False)
 
@@ -136,13 +142,13 @@ test_images_resized = resize_images(test_images_sampled, new_size)
 train_labels_one_hot = one_hot_encode(train_labels_sampled, 10)
 test_labels_one_hot = one_hot_encode(test_labels_sampled, 10)
 
-# Ilość wejść, neuronów w warstwie ukrytej, wyjść, learning rate
+# 784 wejścia, 128 neuronów w warstwie ukrytej, 10 wyjść, learning rate 0.01
 neural_network = NeuralNetwork(100, 32, 10, 0.01)
 
-# Trenowanie sieci przez daną ilość epok epok
+# Trenuj sieć przez 10 epok
 neural_network.train(train_images_resized, train_labels_one_hot, epochs=1000)
 
-# Iteracja przez obrazy testowe i etykiety, zapisywanie wyników predykcji i wypisanie poprawności
+# Iteracja przez obrazy testowe i etykiety, zapisywanie wyników predykcji
 
 accuracy = 0
 
